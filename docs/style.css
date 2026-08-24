@@ -1,0 +1,164 @@
+/* =====================================================================
+   Skybound – 3D Platformer  |  style.css
+   Responsive, mobile-first styles for the game shell and HUD.
+   ===================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0b1020;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #f9fafb;
+  /* Prevent text selection during play */
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* ── Three.js renderer fills the entire viewport ─────────────────── */
+#game-container {
+  position: fixed;
+  inset: 0;
+}
+
+#game-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── HUD ──────────────────────────────────────────────────────────── */
+#hud {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 6px 18px;
+  font-size: clamp(14px, 3.5vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Jump button (bottom-right, mobile) ──────────────────────────── */
+#jump-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 40px;
+  width: clamp(64px, 16vw, 88px);
+  height: clamp(64px, 16vw, 88px);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  background: rgba(34, 211, 238, 0.25);
+  color: #fff;
+  font-size: clamp(12px, 3vw, 16px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  z-index: 10;
+  /* Remove default button appearance */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  touch-action: manipulation;
+  transition: background 0.1s;
+}
+
+#jump-btn:active {
+  background: rgba(34, 211, 238, 0.55);
+}
+
+/* ── Virtual joystick (bottom-left, mobile) ──────────────────────── */
+#joystick-zone {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  width: clamp(100px, 28vw, 140px);
+  height: clamp(100px, 28vw, 140px);
+  z-index: 10;
+  touch-action: none;
+}
+
+#joystick-base {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+
+#joystick-thumb {
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  top: 30%;
+  left: 30%;
+  transition: transform 0.05s;
+  pointer-events: none;
+}
+
+/* ── Fullscreen overlay (game-over / win) ────────────────────────── */
+#overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 20;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+#overlay-box {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: clamp(24px, 6vw, 48px) clamp(32px, 8vw, 64px);
+  text-align: center;
+  max-width: 90vw;
+}
+
+#overlay-title {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  margin-bottom: 12px;
+}
+
+#overlay-msg {
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: #94a3b8;
+  margin-bottom: 28px;
+}
+
+#restart-btn {
+  padding: 12px 36px;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  background: #22d3ee;
+  color: #0b1020;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#restart-btn:hover,
+#restart-btn:active {
+  background: #67e8f9;
+}
