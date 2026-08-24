@@ -107,8 +107,8 @@ html, body {
   border: 2px solid rgba(255, 255, 255, 0.5);
   top: 30%;
   left: 30%;
-  transition: transform 0.05s;
   pointer-events: none;
+  will-change: transform;
 }
 
 /* ── Fullscreen overlay (game-over / win) ────────────────────────── */

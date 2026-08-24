@@ -26,6 +26,7 @@ export const controls = {
   // ── internal joystick state ──────────────────────────────────────
   _joystick: {
     active: false,
+    touchId: null,
     startX: 0,
     startY: 0,
     dx: 0,
@@ -74,10 +75,12 @@ export const controls = {
     const getRadius = () => base.getBoundingClientRect().width / 2;
 
     zone.addEventListener('touchstart', (e) => {
+      if (this._joystick.active) return;
       e.preventDefault();
       const touch = e.changedTouches[0];
       const rect = base.getBoundingClientRect();
       this._joystick.active = true;
+      this._joystick.touchId = touch.identifier;
       this._joystick.startX = rect.left + rect.width / 2;
       this._joystick.startY = rect.top + rect.height / 2;
       this._updateJoystick(touch.clientX, touch.clientY, getRadius(), thumb);
@@ -86,22 +89,52 @@ export const controls = {
     zone.addEventListener('touchmove', (e) => {
       e.preventDefault();
       if (!this._joystick.active) return;
-      const touch = e.changedTouches[0];
+      const touch = this._getJoystickTouch(e.touches) || this._getJoystickTouch(e.changedTouches);
+      if (!touch) return;
       this._updateJoystick(touch.clientX, touch.clientY, getRadius(), thumb);
     }, { passive: false });
 
-    const endJoystick = () => {
-      this._joystick.active = false;
-      this._joystick.dx = 0;
-      this._joystick.dy = 0;
-      // Return thumb to centre
-      if (thumb) {
-        thumb.style.transform = 'translate(0, 0)';
+    const endJoystick = (e) => {
+      if (this._joystick.active && this._getJoystickTouch(e.changedTouches)) {
+        this._resetJoystick(thumb);
       }
     };
 
     zone.addEventListener('touchend', endJoystick);
     zone.addEventListener('touchcancel', endJoystick);
+  },
+
+  _getJoystickTouch(touchList) {
+    if (!touchList || this._joystick.touchId == null) return null;
+    for (const touch of touchList) {
+      if (touch.identifier === this._joystick.touchId) {
+        return touch;
+      }
+    }
+    return null;
+  },
+
+  _resetJoystick(thumb) {
+    this._joystick.active = false;
+    this._joystick.touchId = null;
+    this._joystick.dx = 0;
+    this._joystick.dy = 0;
+    // Return thumb to centre
+    if (thumb) {
+      thumb.style.transform = 'translate(0, 0)';
+    }
+  },
+
+  /**
+   * Map joystick distance so small movements are ignored while the full
+   * joystick range still reaches 100% speed near the edge.
+   * @param {number} value
+   * @returns {number}
+   */
+  _applyDeadZone(value) {
+    const DEAD_ZONE = 0.18;
+    if (value <= DEAD_ZONE) return 0;
+    return Math.min((value - DEAD_ZONE) / (1 - DEAD_ZONE), 1);
   },
 
   /**
@@ -115,17 +148,27 @@ export const controls = {
     const rawDx = clientX - this._joystick.startX;
     const rawDy = clientY - this._joystick.startY;
     const dist = Math.sqrt(rawDx * rawDx + rawDy * rawDy);
+    if (dist === 0) {
+      this._joystick.dx = 0;
+      this._joystick.dy = 0;
+      if (thumb) {
+        thumb.style.transform = 'translate(0, 0)';
+      }
+      return;
+    }
+
     const clampedDist = Math.min(dist, radius);
     const angle = Math.atan2(rawDy, rawDx);
+    const filteredDist = this._applyDeadZone(clampedDist / radius);
 
-    // Normalised values (-1…1)
-    this._joystick.dx = (Math.cos(angle) * clampedDist) / radius;
-    this._joystick.dy = (Math.sin(angle) * clampedDist) / radius;
+    // Normalised values (-1…1) with a radial dead zone for steadier mobile input.
+    this._joystick.dx = Math.cos(angle) * filteredDist;
+    this._joystick.dy = Math.sin(angle) * filteredDist;
 
-    // Move thumb visually (clamped to base radius)
+    // Move thumb visually using the filtered direction.
     if (thumb) {
-      const tx = Math.cos(angle) * clampedDist;
-      const ty = Math.sin(angle) * clampedDist;
+      const tx = this._joystick.dx * radius;
+      const ty = this._joystick.dy * radius;
       thumb.style.transform = `translate(${tx}px, ${ty}px)`;
     }
   },
