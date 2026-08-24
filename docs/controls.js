@@ -3,7 +3,7 @@
  *
  * Supports:
  *   - Keyboard (WASD / arrow keys) for desktop movement.
- *   - Spacebar for desktop jump.
+ *   - Spacebar / Enter for desktop jump.
  *   - Virtual joystick (touch) for mobile movement.
  *   - On-screen jump button for mobile jump.
  *
@@ -38,18 +38,35 @@ export const controls = {
    * Call once after the DOM is fully loaded.
    */
   init() {
+    const MOVEMENT_KEYS = new Set([
+      'KeyW', 'KeyA', 'KeyS', 'KeyD',
+      'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight',
+    ]);
+    const JUMP_KEYS = new Set(['Space', 'Enter']);
+    const CONTROL_KEYS = new Set([...MOVEMENT_KEYS, ...JUMP_KEYS]);
+
     // ── Keyboard ────────────────────────────────────────────────────
     window.addEventListener('keydown', (e) => {
       this._keys[e.code] = true;
-      // Jump on Spacebar or ArrowUp
-      if (e.code === 'Space' || e.code === 'ArrowUp') {
+      if (CONTROL_KEYS.has(e.code)) {
+        e.preventDefault(); // stop page scroll / focus movement
+      }
+      // Jump on Spacebar or Enter
+      if (JUMP_KEYS.has(e.code)) {
         this.jump = true;
-        e.preventDefault(); // stop page scroll
       }
     });
 
     window.addEventListener('keyup', (e) => {
       this._keys[e.code] = false;
+      if (CONTROL_KEYS.has(e.code)) {
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('blur', () => {
+      this._keys = {};
+      this.jump = false;
     });
 
     // ── On-screen jump button ────────────────────────────────────────
