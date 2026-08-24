@@ -37,6 +37,14 @@ function initRenderer() {
   const container = document.getElementById('game-container');
   container.appendChild(renderer.domElement);
 
+  // Prevent the canvas from stealing keyboard focus.
+  // Keyboard listeners are on `window`, so we keep focus there at all times.
+  const canvas = renderer.domElement;
+  canvas.setAttribute('tabindex', '-1');
+  canvas.style.outline = 'none';
+  // Re-focus window whenever the player clicks/taps the canvas.
+  canvas.addEventListener('pointerdown', () => window.focus(), { passive: true });
+
   // Size renderer to viewport immediately
   resizeRenderer();
   window.addEventListener('resize', resizeRenderer);

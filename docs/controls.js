@@ -204,6 +204,22 @@ export const controls = {
     if (this._keys['KeyW'] || this._keys['ArrowUp'])    z -= 1;
     if (this._keys['KeyS'] || this._keys['ArrowDown'])  z += 1;
 
+    // ── Drive joystick thumb visually for keyboard input ─────────────
+    // This gives on-screen feedback so players know arrow keys are working.
+    if (!this._joystick.active) {
+      const thumb = document.getElementById('joystick-thumb');
+      const base  = document.getElementById('joystick-base');
+      if (thumb && base && (x !== 0 || z !== 0)) {
+        const radius = base.getBoundingClientRect().width / 2;
+        const len = Math.sqrt(x * x + z * z);
+        const nx = x / len;
+        const nz = z / len;
+        thumb.style.transform = `translate(${nx * radius * 0.6}px, ${nz * radius * 0.6}px)`;
+      } else if (thumb && x === 0 && z === 0) {
+        thumb.style.transform = 'translate(0, 0)';
+      }
+    }
+
     // ── Joystick overrides keyboard if active ────────────────────────
     if (this._joystick.active) {
       x = this._joystick.dx;
