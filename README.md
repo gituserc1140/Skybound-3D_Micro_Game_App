@@ -16,7 +16,7 @@ Runs in any modern browser and is deployable via GitHub Pages.
 | Action      | Desktop          | Mobile                     |
 |-------------|------------------|----------------------------|
 | Move        | `W A S D` or Arrow keys | Virtual joystick (bottom-left) |
-| Jump        | `Spacebar`       | **JUMP** button (bottom-right) |
+| Jump        | `Spacebar` or `Enter` | **JUMP** button (bottom-right) |
 
 ## Project Structure
 
@@ -64,4 +64,3 @@ https://<your-username>.github.io/<your-repo>/
 - **Physics:** simple gravity + jump velocity + AABB bounding-box collisions.
 - **Responsive canvas:** renderer resizes on `window.resize`; pixel-ratio capped at 2 for performance.
 - **Mobile controls:** virtual joystick uses raw touch events; jump button uses `touchstart` for zero-latency response.
-
